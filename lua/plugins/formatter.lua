@@ -13,6 +13,10 @@ return {
         javascript = { "prettier" },
         typescript = { "prettier" },
         typescriptreact = { "prettier" },
+        javascriptreact = { "prettier" },
+        css = { "prettier" },
+        html = { "prettier" },
+        json = { "prettier" },
       },
       -- CONFIGURACIÓN DE LA GLORIA: Formatear al guardar
       format_on_save = {

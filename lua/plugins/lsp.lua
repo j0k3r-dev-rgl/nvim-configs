@@ -18,7 +18,10 @@ return {
           -- Handler por defecto para LSPs no específicos
           function(server_name)
             -- Ignorar jdtls porque ya se configura en java_stack.lua
-            if server_name ~= "jdtls" then
+            -- Ignorar servidores gestionados por otros stacks:
+            -- jdtls -> java_stack.lua | vtsls, tailwindcss, eslint -> js_stack.lua
+            local managed_servers = { 'jdtls', 'vtsls', 'tailwindcss', 'eslint' }
+            if not vim.tbl_contains(managed_servers, server_name) then
               require("lspconfig")[server_name].setup({
                 capabilities = capabilities,
               })
