@@ -1,5 +1,12 @@
 -- ~/.config/nvim/lua/config/autocmds.lua
 
+-- Configurar extensión .graphqls como GraphQL (Spring GraphQL)
+vim.filetype.add({
+  extension = {
+    graphqls = "graphql",
+  }
+})
+
 -- Variable para rastrear si acabamos de abrir un archivo desde nvim-tree
 local recently_opened = false
 

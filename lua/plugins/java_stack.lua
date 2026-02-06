@@ -1,41 +1,75 @@
 -- ~/.config/nvim/lua/plugins/java_stack.lua
+-- Configuración principal de Java con nvim-java
+-- Este archivo tiene PRIORIDAD ALTA para cargar antes que lsp.lua
 
 return {
-  -- 1. nvim-java: El plugin que automatiza TODO lo de Java
-  {
-    'nvim-java/nvim-java',
-    config = false, -- Se inicializa a través de lspconfig
-  },
-
-  -- 2. Mason: Para instalar el JDTLS y el Debugger
+  -- 1. Mason: Instalador unificado (se carga primero)
   {
     'williamboman/mason.nvim',
-    opts = {
-      ensure_installed = { 'jdtls', 'java-debug-adapter', 'java-test' }
-    }
+    priority = 100, -- Prioridad alta para cargar primero
+    config = function()
+      require('mason').setup()
+    end
   },
-  
-  -- 3. LSP Config: La conexión
+
+  -- 2. Mason Tool Installer: Instala todas las herramientas necesarias
+  {
+    'WhoIsSethDaniel/mason-tool-installer.nvim',
+    dependencies = { 'williamboman/mason.nvim' },
+    priority = 99,
+    config = function()
+      require('mason-tool-installer').setup({
+        ensure_installed = {
+          -- Java (JDTLS + Debug)
+          'jdtls',
+          'java-debug-adapter',
+          'java-test',
+
+          -- LSPs para Spring Boot
+          'lemminx',       -- XML (pom.xml, config)
+          'yamlls',        -- YAML (application.yml)
+          'graphql',       -- GraphQL
+
+          -- Formateadores
+          'prettier',      -- GraphQL y YAML
+          'xmlformatter',  -- XML
+        },
+      })
+    end
+  },
+
+  -- 3. nvim-java: El plugin que automatiza TODO lo de Java
+  {
+    'nvim-java/nvim-java',
+    priority = 98, -- Debe inicializarse antes de lspconfig
+    ft = { 'java' }, -- Solo se carga con archivos Java
+    config = function()
+      require('java').setup()
+    end
+  },
+
+  -- 4. LSP Config: Configuración de JDTLS
   {
     'neovim/nvim-lspconfig',
     dependencies = {
       'nvim-java/nvim-java',
       'williamboman/mason.nvim',
+      'hrsh7th/cmp-nvim-lsp',
     },
+    priority = 97,
     config = function()
-      -- Paso 1: Inicializar nvim-java (debe ir antes que el LSP)
-      require('java').setup()
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-      -- Paso 2: Definir la configuración usando la nueva API nativa vim.lsp.config
-      -- Ya no usamos require('lspconfig').jdtls.setup()
+      -- Configurar JDTLS usando la nueva API nativa
       vim.lsp.config('jdtls', {
+        capabilities = capabilities,
         settings = {
           java = {
             configuration = {
               runtimes = {
                 {
                   name = "JavaSE-21",
-                  path = "/usr/lib/jvm/java-21-openjdk/", -- Ajusta según 'archlinux-java status'
+                  path = "/usr/lib/jvm/java-21-openjdk/",
                   default = true,
                 },
                 {
@@ -47,22 +81,25 @@ return {
           }
         }
       })
-local wk = require("which-key")
-wk.add({
-  { "<leader>j", group = "Java" },
-  { "<leader>jd", vim.lsp.buf.definition, desc = "Ir a Definición" },
-  { "<leader>ji", vim.lsp.buf.implementation, desc = "Ir a Implementación" },
-  { "<leader>jr", vim.lsp.buf.references, desc = "Ver Referencias" },
-  { "<leader>jk", vim.lsp.buf.hover, desc = "Ver Documentación (Hover)" },
-  { "<leader>ja", vim.lsp.buf.code_action, desc = "Acciones de Código (Fixes)" },
-  { "<leader>rn", vim.lsp.buf.rename, desc = "Renombrar Símbolo" },
-})
-      -- Paso 3: Habilitar el servidor nativamente
+
+      -- Keybindings específicos de Java
+      local wk = require("which-key")
+      wk.add({
+        { "<leader>j", group = "Java" },
+        { "<leader>jd", vim.lsp.buf.definition, desc = "Ir a Definición" },
+        { "<leader>ji", vim.lsp.buf.implementation, desc = "Ir a Implementación" },
+        { "<leader>jr", vim.lsp.buf.references, desc = "Ver Referencias" },
+        { "<leader>jk", vim.lsp.buf.hover, desc = "Ver Documentación (Hover)" },
+        { "<leader>ja", vim.lsp.buf.code_action, desc = "Acciones de Código (Fixes)" },
+        { "<leader>jn", vim.lsp.buf.rename, desc = "Renombrar Símbolo" },
+      })
+
+      -- Habilitar el servidor JDTLS
       vim.lsp.enable('jdtls')
     end
   },
 
-  -- 4. Autocompletado profesional
+  -- 5. Autocompletado profesional
   {
     'hrsh7th/nvim-cmp',
     dependencies = {
