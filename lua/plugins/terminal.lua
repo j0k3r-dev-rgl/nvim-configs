@@ -19,7 +19,7 @@ return {
         cmd = "opencode",
         dir = vim.fn.getcwd(),
         direction = "vertical",
-        size = vim.o.columns * 0.35,
+        size = math.floor(vim.o.columns * 0.4),
         display_name = "OpenCode",
         on_open = function(term)
           vim.cmd("wincmd H")  -- Mover terminal a la izquierda
