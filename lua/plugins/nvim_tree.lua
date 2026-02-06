@@ -37,6 +37,13 @@ return {
           -- Desactivamos el filtro aquí también para asegurar visibilidad
           git_ignored = false, 
         },
+        on_attach = function(bufnr)
+          local api = require("nvim-tree.api")
+          -- Mapear 'l' para expandir/abrir carpeta
+          vim.keymap.set("n", "l", api.node.open.replace_tree_buffer, { buffer = bufnr, noremap = true, silent = true })
+          -- Mapear 'h' para cerrar/colapsar carpeta
+          vim.keymap.set("n", "h", api.node.navigate.parent_close, { buffer = bufnr, noremap = true, silent = true })
+        end,
       })
 
       vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { silent = true, desc = "Explorador de archivos" })
