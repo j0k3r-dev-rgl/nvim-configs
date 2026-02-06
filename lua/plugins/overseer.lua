@@ -18,14 +18,26 @@ local function load_env_file(filepath)
   local f = io.open(filepath, "r")
   if f then
     for line in f:lines() do
-      if not line:match("^%s*#") and line:match("=") then
-        local key, value = line:match("([^=]+)=(.*)")
+      -- Ignorar líneas vacías y comentarios
+      if not line:match("^%s*#") and not line:match("^%s*$") and line:match("=") then
+        local key, value = line:match("^%s*([^=]+)%s*=%s*(.*)")
         if key and value then
-          env[key:gsub("%s+", "")] = value:gsub("%s+", "")
+          -- Limpiar el key de espacios
+          key = key:gsub("%s+", "")
+
+          -- Limpiar el value de comillas si las tiene
+          value = value:match('^"(.*)"$') or value:match("^'(.*)'$") or value
+
+          -- NO eliminar espacios del value, solo trim al inicio/final
+          value = value:gsub("^%s+", ""):gsub("%s+$", "")
+
+          env[key] = value
         end
       end
     end
     f:close()
+  else
+    vim.notify("⚠️  No se encontró archivo " .. filepath, vim.log.levels.WARN)
   end
   return env
 end
@@ -46,17 +58,31 @@ end
 --- Ejecuta tarea de overseer
 local function run_task(cmd, args, env_file)
   local overseer = require("overseer")
-  overseer.run_task({
+
+  -- Cargar variables de entorno y combinarlas con las del sistema
+  local env = vim.fn.environ()
+  if env_file then
+    local custom_env = load_env_file(env_file)
+    for k, v in pairs(custom_env) do
+      env[k] = v
+    end
+  end
+
+  -- Crear y ejecutar la tarea
+  local task = overseer.new_task({
     cmd = cmd,
     args = args,
-    env = env_file and load_env_file(env_file) or {},
+    env = env,
     components = {
+      { "on_output_quickfix", open = false },
       { "on_exit_set_status" },
       { "on_complete_notify" },
-      { "open_output", focus = true },
-      { "unique", { replace = true } },
+      { "open_output", on_start = "always", focus = true },
+      "default",
     },
   })
+
+  task:start()
 end
 
 --- Menú principal inteligente según tipo de proyecto
@@ -191,7 +217,15 @@ return {
 
         -- Gestión de tareas
         { "<leader>mt", "<cmd>OverseerToggle<cr>", desc = "📊 Panel de Tareas" },
-        { "<leader>ma", "<cmd>OverseerQuickAction<cr>", desc = "⚡ Acciones Rápidas" },
+        { "<leader>ma", function()
+          local overseer = require("overseer")
+          local tasks = overseer.list_tasks({ recent_first = true })
+          if tasks[1] then
+            overseer.run_action(tasks[1])
+          else
+            vim.notify("No hay tareas disponibles", vim.log.levels.WARN)
+          end
+        end, desc = "⚡ Acciones Rápidas" },
 
         -- Detener tarea activa
         { "<leader>ms", function()
