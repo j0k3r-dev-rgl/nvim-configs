@@ -59,7 +59,10 @@ return {
     dependencies = {
       'williamboman/mason.nvim',
       'hrsh7th/cmp-nvim-lsp',
+      'folke/which-key.nvim',
+      'nvim-telescope/telescope.nvim',
     },
+    ft = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
     config = function()
       -- Si no es un proyecto JS, no configurar nada
       if not is_js_project() then
@@ -71,8 +74,15 @@ return {
       -- === vtsls: servidor principal para TypeScript/JavaScript ===
       -- Mejor rendimiento que tsserver para proyectos React grandes.
       -- Soporta .ts, .tsx, .js, .jsx de forma nativa.
+
+      -- Configurar capabilities con offset_encoding para evitar warnings
+      local vtsls_capabilities = vim.tbl_deep_extend('force', capabilities, {
+        offset_encoding = 'utf-16',
+      })
+      vtsls_capabilities.offsetEncoding = { 'utf-16' }
+
       vim.lsp.config('vtsls', {
-        capabilities = capabilities,
+        capabilities = vtsls_capabilities,
         filetypes = {
           'javascript',
           'javascriptreact',
@@ -113,8 +123,13 @@ return {
       })
 
       -- === tailwindcss: autocompletado de clases CSS ===
+      local tailwind_capabilities = vim.tbl_deep_extend('force', capabilities, {
+        offset_encoding = 'utf-16',
+      })
+      tailwind_capabilities.offsetEncoding = { 'utf-16' }
+
       vim.lsp.config('tailwindcss', {
-        capabilities = capabilities,
+        capabilities = tailwind_capabilities,
         filetypes = {
           'html',
           'css',
@@ -137,8 +152,13 @@ return {
       })
 
       -- === eslint: linting integrado como LSP ===
+      local eslint_capabilities = vim.tbl_deep_extend('force', capabilities, {
+        offset_encoding = 'utf-16',
+      })
+      eslint_capabilities.offsetEncoding = { 'utf-16' }
+
       vim.lsp.config('eslint', {
-        capabilities = capabilities,
+        capabilities = eslint_capabilities,
         filetypes = {
           'javascript',
           'javascriptreact',
@@ -156,47 +176,39 @@ return {
       vim.lsp.enable('tailwindcss')
       vim.lsp.enable('eslint')
 
-      -- === Keybindings específicos para JS/TS - Se registran cuando se abre un archivo JS/TS ===
-      vim.api.nvim_create_autocmd('FileType', {
-        pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
-        callback = function()
-          -- Diferir para asegurar que which-key esté disponible
-          vim.schedule(function()
-            local ok, wk = pcall(require, 'which-key')
-            if ok then
-              wk.add({
-                { '<leader>t', group = 'TypeScript/JS' },
+      -- === Keybindings específicos para JS/TS - Registrados directamente ===
+      local wk = require('which-key')
+      local telescope = require('telescope.builtin')
 
-                -- LSP básico
-                { '<leader>td', vim.lsp.buf.definition, desc = 'Ir a Definición' },
-                { '<leader>ti', vim.lsp.buf.implementation, desc = 'Ir a Implementación' },
-                { '<leader>tr', vim.lsp.buf.references, desc = 'Ver Referencias' },
-                { '<leader>tk', vim.lsp.buf.hover, desc = 'Ver Documentación (Hover)' },
-                { '<leader>ta', vim.lsp.buf.code_action, desc = 'Acciones de Código' },
-                { '<leader>tn', vim.lsp.buf.rename, desc = 'Renombrar Símbolo' },
+      wk.add({
+        { '<leader>t', group = 'TypeScript/JS' },
 
-                -- React Router 7 específico - Navegación rápida de archivos
-                { '<leader>tf', group = 'Files (React Router 7)' },
+        -- LSP básico con Telescope (va directo si hay 1 resultado)
+        { '<leader>td', telescope.lsp_definitions, desc = 'Ir a Definición' },
+        { '<leader>ti', telescope.lsp_implementations, desc = 'Ir a Implementación' },
+        { '<leader>tr', telescope.lsp_references, desc = 'Ver Referencias' },
+        { '<leader>tk', vim.lsp.buf.hover, desc = 'Ver Documentación (Hover)' },
+        { '<leader>ta', vim.lsp.buf.code_action, desc = 'Acciones de Código' },
+        { '<leader>tn', vim.lsp.buf.rename, desc = 'Renombrar Símbolo' },
 
-                { '<leader>tfc', function()
-                  vim.cmd('edit react-router.config.ts')
-                end, desc = '⚙️  Config' },
+        -- React Router 7 específico - Navegación rápida de archivos
+        { '<leader>tf', group = 'Files (React Router 7)' },
 
-                { '<leader>tfr', function()
-                  vim.cmd('edit app/root.tsx')
-                end, desc = '🏠 Root Layout' },
+        { '<leader>tfc', function()
+          vim.cmd('edit react-router.config.ts')
+        end, desc = '⚙️  Config' },
 
-                { '<leader>tft', function()
-                  vim.cmd('edit app/routes.ts')
-                end, desc = '🗺️  Routes' },
+        { '<leader>tfr', function()
+          vim.cmd('edit app/root.tsx')
+        end, desc = '🏠 Root Layout' },
 
-                { '<leader>tfe', function()
-                  vim.cmd('edit .env')
-                end, desc = '🔐 Environment' },
-              })
-            end
-          end)
-        end,
+        { '<leader>tft', function()
+          vim.cmd('edit app/routes.ts')
+        end, desc = '🗺️  Routes' },
+
+        { '<leader>tfe', function()
+          vim.cmd('edit .env')
+        end, desc = '🔐 Environment' },
       })
     end,
   },

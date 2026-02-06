@@ -20,6 +20,18 @@ require("lazy").setup("plugins")
 require("config.keymaps")
 require("config.autocmds")
 
+-- Filtrar warnings molestos de position_encoding y offset_encoding
+local notify = vim.notify
+vim.notify = function(msg, level, opts)
+  -- Suprimir warnings específicos de encoding
+  if type(msg) == "string" then
+    if msg:match("position_encoding") or msg:match("offset_encoding") then
+      return
+    end
+  end
+  notify(msg, level, opts)
+end
+
 vim.opt.number = true          -- Mostrar números de línea
 vim.opt.relativenumber = true  -- Números relativos para moverte rápido
 vim.opt.shiftwidth = 4         -- Tabulación de 4 espacios (estándar Java)
