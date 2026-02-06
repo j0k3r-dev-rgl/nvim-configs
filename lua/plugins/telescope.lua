@@ -1,30 +1,18 @@
 return {
   {
     'nvim-telescope/telescope.nvim',
-    branch = 'master',
-    dependencies = { 
-      'nvim-lua/plenary.nvim',
-    },
+    tag = '0.1.8',
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
-      local actions = require('telescope.actions')
-      require('telescope').setup({
-        defaults = {
-          -- Configuración mínima y segura
-          layout_strategy = 'horizontal',
-          layout_config = {
-            horizontal = {
-              preview_width = 0.55,
-            },
-          },
-          mappings = {
-            n = {
-              ["o"] = actions.move_selection_previous,
-              ["l"] = actions.move_selection_next,
-              ["k"] = actions.close, -- Izquierda (k) cierra
-              ["ñ"] = actions.select_default, -- Derecha (ñ) selecciona/abre
-            },
-          },
-        },
+      local builtin = require('telescope.builtin')
+      local wk = require("which-key")
+
+      wk.add({
+        { "<leader>f", group = "Buscar" },
+        { "<leader>ff", builtin.find_files, desc = "Buscar Archivos" },
+        { "<leader>fg", builtin.live_grep, desc = "Buscar Texto (Grep)" },
+        { "<leader>fb", builtin.buffers, desc = "Buscar Buffers" },
+        { "<leader>fs", builtin.lsp_document_symbols, desc = "Símbolos del Documento (Métodos/Variables)" },
       })
     end
   }

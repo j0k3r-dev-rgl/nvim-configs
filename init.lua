@@ -1,41 +1,30 @@
-require("core.nodejs").setup({ silent = true })
-require("core.options")
-require("core.keymaps")
-require("core.lazy")
-require("core.java-helpers")
-require("core.java-check")
-require("core.runners")
-require("config.dbee-visual").setup() -- Configuración visual para nvim-dbee
-vim.g.skip_ts_context_commentstring_module = true
-vim.opt.termguicolors = true
--- Activar highlighting de treesitter automáticamente para todos los archivos
-vim.api.nvim_create_autocmd('FileType', {
-    pattern = '*',
-    callback = function()
-        pcall(vim.treesitter.start) -- pcall para evitar errores si no hay parser
-    end,
-})
--- Configuración de diagnósticos
-vim.diagnostic.config({
-    virtual_text = {
-        prefix = '●',
-        spacing = 4,
-    },
-    signs = {
-        text = {
-            [vim.diagnostic.severity.ERROR] = "",
-            [vim.diagnostic.severity.WARN] = "",
-            [vim.diagnostic.severity.HINT] = "",
-            [vim.diagnostic.severity.INFO] = "",
-        },
-    },
-    underline = true,
-    update_in_insert = true,
-    severity_sort = true,
-    float = {
-        border = 'rounded',
-        source = true,
-        header = '',
-        prefix = '',
-    },
-})
+-- ~/.config/nvim/init.lua
+
+-- Definir la tecla líder (Espacio es la más cómoda)
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+
+-- Instalar Lazy.nvim si no existe
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Cargar plugins
+require("lazy").setup("plugins")
+require("config.keymaps")
+
+vim.opt.number = true          -- Mostrar números de línea
+vim.opt.relativenumber = true  -- Números relativos para moverte rápido
+vim.opt.shiftwidth = 4         -- Tabulación de 4 espacios (estándar Java)
+vim.opt.tabstop = 4
+vim.opt.expandtab = true       -- Convertir tabs en espacios
+vim.opt.termguicolors = true   -- Colores reales en la terminal
+
+vim.opt.signcolumn = "yes" -- dejamos fija la bombilla para que no moleste.
+
