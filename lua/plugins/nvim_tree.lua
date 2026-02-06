@@ -9,6 +9,22 @@ return {
 
       local api = require("nvim-tree.api")
 
+      -- Variable para controlar el estado de expansión
+      local is_expanded = false
+      local default_width = 35
+      local expanded_width = 60
+
+      -- FUNCIÓN para alternar el ancho del árbol (usando API moderna)
+      local function toggle_width()
+        if is_expanded then
+          api.tree.resize({ absolute = default_width })
+          is_expanded = false
+        else
+          api.tree.resize({ absolute = expanded_width })
+          is_expanded = true
+        end
+      end
+
       -- FUNCIÓN "CARCELERO": Intercepta la apertura
       local function smart_open()
         local node = api.tree.get_node_under_cursor()
@@ -32,6 +48,7 @@ return {
            timeout = 400,
          },
          renderer = {
+           group_empty = true, -- Agrupa carpetas vacías anidadas en una sola línea
            highlight_git = true, -- Colorea el nombre según el estado de Git
            icons = {
              show = {
@@ -92,7 +109,10 @@ return {
           vim.keymap.set("n", "<BS>", "<Nop>", opts)    -- Backspace
           vim.keymap.set("n", "<C-k>", "<Nop>", opts)
           vim.keymap.set("n", "P", "<Nop>", opts)       -- Parent dir
-          
+
+          -- 4. EXPANSIÓN TEMPORAL (tecla 'e' para expandir/contraer)
+          vim.keymap.set("n", "e", toggle_width, opts)
+
           -- Nota: Ya no bloqueamos 'c' aquí, así que funcionará para "Copiar"
         end,
       })

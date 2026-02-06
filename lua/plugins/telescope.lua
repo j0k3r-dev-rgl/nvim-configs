@@ -4,8 +4,19 @@ return {
     tag = '0.1.8',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
+      local telescope = require('telescope')
       local builtin = require('telescope.builtin')
       local wk = require("which-key")
+
+      -- Configurar telescope sin treesitter highlighting
+      telescope.setup({
+        defaults = {
+          -- Deshabilitar treesitter en el preview para evitar errores
+          preview = {
+            treesitter = false,
+          },
+        }
+      })
 
       wk.add({
         { "<leader>f", group = "Buscar" },
