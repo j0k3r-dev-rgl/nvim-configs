@@ -227,3 +227,5 @@ Follow this order in plugin specs:
 - Keep plugin files focused on single features/responsibilities
 - **Do NOT create documentation files** (*.md, README, etc.) unless explicitly requested by the user
 - Focus on implementing features and fixes, not documentation
+- **CRITICAL: NEVER create git commits automatically**. Only commit when the user explicitly requests it
+- Always show the user what changes were made and ask for permission before committing

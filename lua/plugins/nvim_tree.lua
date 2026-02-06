@@ -1,52 +1,75 @@
 -- ~/.config/nvim/lua/plugins/nvim_tree.lua
-
 return {
-  { 'nvim-tree/nvim-web-devicons' },
   {
-    'nvim-tree/nvim-tree.lua',
-    version = "*",
-    lazy = false,
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    "nvim-tree/nvim-tree.lua",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
-      require("nvim-tree").setup({
-        sort_by = "case_sensitive",
-        git = {
+      local status_ok, nvim_tree = pcall(require, "nvim-tree")
+      if not status_ok then return end
+
+      local api = require("nvim-tree.api")
+
+      -- FUNCIÓN "CARCELERO": Intercepta la apertura
+      local function smart_open()
+        local node = api.tree.get_node_under_cursor()
+        -- Si el nodo es ".." (padre) o nil, no hacemos NADA
+        if not node or node.name == ".." then
+          return
+        end
+        -- Si es un archivo o carpeta normal, procedemos
+        api.node.open.edit()
+      end
+
+      nvim_tree.setup({
+        sync_root_with_cwd = false, 
+        respect_buf_cwd = false,
+        
+        update_focused_file = {
           enable = true,
-          ignore = false, -- MUY IMPORTANTE: Cambiar a false para que nvim-tree NO oculte los archivos del .gitignore
-          timeout = 400,
+          update_root = false, 
         },
+
+        actions = {
+          change_dir = {
+            enable = false,
+            restrict_above_cwd = true, 
+          },
+        },
+
         view = {
           width = 35,
           side = "right",
           relativenumber = true,
         },
-        renderer = {
-          group_empty = true,
-          highlight_git = true, -- Esto hace que los nombres de archivos cambien de color según Git
-          icons = {
-            show = {
-              file = true,
-              folder = true,
-              folder_arrow = true,
-              git = true,
-            },
-          },
-        },
-        filters = {
-          dotfiles = false,
-          -- Desactivamos el filtro aquí también para asegurar visibilidad
-          git_ignored = false, 
-        },
+        
         on_attach = function(bufnr)
-          local api = require("nvim-tree.api")
-          -- Mapear 'l' para expandir/abrir carpeta
-          vim.keymap.set("n", "l", api.node.open.replace_tree_buffer, { buffer = bufnr, noremap = true, silent = true })
-          -- Mapear 'h' para cerrar/colapsar carpeta
-          vim.keymap.set("n", "h", api.node.navigate.parent_close, { buffer = bufnr, noremap = true, silent = true })
+          local opts = { buffer = bufnr, noremap = true, silent = true }
+
+          -- 1. ¡ESTO ES LO QUE FALTABA!
+          -- Carga primero todos los atajos estándar (a, c, d, x, p, m...)
+          api.config.mappings.default_on_attach(bufnr)
+
+          -- 2. APLICAMOS TU "CÁRCEL" (Sobrescribiendo navegación)
+          -- Reemplazamos la apertura estándar por smart_open
+          vim.keymap.set("n", "l", smart_open, opts)
+          vim.keymap.set("n", "<CR>", smart_open, opts)
+          vim.keymap.set("n", "o", smart_open, opts)
+          vim.keymap.set("n", "<2-LeftMouse>", smart_open, opts)
+
+          -- Cerrar carpeta (pero nunca subir)
+          vim.keymap.set("n", "h", api.node.navigate.parent_close, opts)
+
+          -- 3. BLOQUEAR SALIDA (Anulamos las teclas que suben de nivel)
+          vim.keymap.set("n", "-", "<Nop>", opts)       -- Netrw style
+          vim.keymap.set("n", "<BS>", "<Nop>", opts)    -- Backspace
+          vim.keymap.set("n", "<C-k>", "<Nop>", opts)
+          vim.keymap.set("n", "P", "<Nop>", opts)       -- Parent dir
+          
+          -- Nota: Ya no bloqueamos 'c' aquí, así que funcionará para "Copiar"
         end,
       })
-
-      vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { silent = true, desc = "Explorador de archivos" })
+      
+      vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { silent = true, desc = "Explorador" })
     end,
   },
 }
