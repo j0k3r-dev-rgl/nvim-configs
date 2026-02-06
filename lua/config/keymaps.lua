@@ -8,7 +8,7 @@ vim.keymap.set('n', '<A-k>', '<C-u>', { desc = "Scroll up 25%", silent = true })
 -- Guardar o Espacio + w (Usando tu tecla Leader)
 local wk = require("which-key")
 wk.add({
-  { "<leader>w", "<cmd>write<cr>", desc = "Guardar Archivo" },
+    { "<leader>w", "<cmd>write<cr>", desc = "Guardar Archivo" },
 })
 
 -- Evitar que Ctrl+z suspenda la terminal y usarlo para Deshacer
