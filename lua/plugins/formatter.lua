@@ -9,14 +9,17 @@ return {
         -- Para Java usamos google-java-format (estándar de la industria)
         -- Si prefieres otro, puedes usar 'checkstyle'
         java = { "google-java-format" },
-        -- Ya dejamos preparado para cuando pases a React
+        -- JavaScript/TypeScript/React
         javascript = { "prettier" },
         typescript = { "prettier" },
         typescriptreact = { "prettier" },
         javascriptreact = { "prettier" },
+        -- Web y otros
         css = { "prettier" },
         html = { "prettier" },
         json = { "prettier" },
+        -- GraphQL (Spring GraphQL)
+        graphql = { "prettier" },
       },
       -- CONFIGURACIÓN DE LA GLORIA: Formatear al guardar
       format_on_save = {
