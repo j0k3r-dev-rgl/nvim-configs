@@ -18,6 +18,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Cargar plugins
 require("lazy").setup("plugins")
 require("config.keymaps")
+require("config.autocmds")
 
 vim.opt.number = true          -- Mostrar números de línea
 vim.opt.relativenumber = true  -- Números relativos para moverte rápido

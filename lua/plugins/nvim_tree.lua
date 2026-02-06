@@ -20,27 +20,55 @@ return {
         api.node.open.edit()
       end
 
-      nvim_tree.setup({
-        sync_root_with_cwd = false, 
-        respect_buf_cwd = false,
-        
-        update_focused_file = {
-          enable = true,
-          update_root = false, 
-        },
+       nvim_tree.setup({
+         sync_root_with_cwd = false, 
+         respect_buf_cwd = false,
+         hijack_cursor = false,
+         prefer_startup_root = true,
+         git = {
+           enable = true,
+           ignore = false, -- Esto hace que NO se oculten por estar en gitignore
+           show_on_dirs = true,
+           timeout = 400,
+         },
+         renderer = {
+           highlight_git = true, -- Colorea el nombre según el estado de Git
+           icons = {
+             show = {
+               git = true, -- Muestra el icono de estado (ej. un círculo gris para ignorados)
+             },
+           },
+         },
+         filters = {
+           dotfiles = false,
+           git_ignored = false, -- Aseguramos que el filtro esté apagado
+         },
+         update_focused_file = {
+           enable = true,
+           update_root = false, 
+         },
 
-        actions = {
-          change_dir = {
-            enable = false,
-            restrict_above_cwd = true, 
-          },
-        },
+         actions = {
+           change_dir = {
+             enable = false,
+             restrict_above_cwd = true, 
+           },
+           open_file = {
+             resize_window = false, -- CRÍTICO: No redimensionar el árbol al abrir archivos
+             quit_on_open = true, -- Cerrar el árbol al abrir un archivo
+             window_picker = {
+               enable = true,
+             },
+           },
+         },
 
-        view = {
-          width = 35,
-          side = "right",
-          relativenumber = true,
-        },
+         view = {
+           width = 35,
+           side = "right",
+           relativenumber = true,
+           adaptive_size = false, -- Desactivar redimensionamiento automático
+           preserve_window_proportions = true, -- Mantener proporciones de ventana
+         },
         
         on_attach = function(bufnr)
           local opts = { buffer = bufnr, noremap = true, silent = true }

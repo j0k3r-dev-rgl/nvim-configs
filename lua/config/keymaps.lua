@@ -10,3 +10,8 @@ local wk = require("which-key")
 wk.add({
   { "<leader>w", "<cmd>write<cr>", desc = "Guardar Archivo" },
 })
+
+-- Evitar que Ctrl+z suspenda la terminal y usarlo para Deshacer
+vim.keymap.set("n", "<C-z>", "u", { desc = "Deshacer (Undo)" })      -- Modo Normal
+vim.keymap.set("i", "<C-z>", "<C-o>u", { desc = "Deshacer (Undo)" }) -- Modo Insertar
+vim.keymap.set("v", "<C-z>", "<Esc>u", { desc = "Deshacer (Undo)" }) -- Modo Visual

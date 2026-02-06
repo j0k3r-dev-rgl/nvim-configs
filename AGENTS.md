@@ -229,3 +229,5 @@ Follow this order in plugin specs:
 - Focus on implementing features and fixes, not documentation
 - **CRITICAL: NEVER create git commits automatically**. Only commit when the user explicitly requests it
 - Always show the user what changes were made and ask for permission before committing
+- **ALWAYS search official documentation or internet** when working with plugins, especially with newer versions of Neovim (0.12+)
+- Use WebFetch tool to consult official GitHub repos, documentation, and relevant sources before implementing features
