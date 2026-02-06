@@ -6,7 +6,13 @@ return {
     version = "*",
     config = function()
       require("toggleterm").setup({
-        size = 20,
+        size = function(term)
+          if term.direction == "vertical" then
+            return math.floor(vim.o.columns * 0.4)  -- 2/5 del ancho
+          elseif term.direction == "horizontal" then
+            return 15
+          end
+        end,
         open_mapping = [[<leader>aa]],
         shading_factor = 1,
         direction = "vertical",
@@ -19,7 +25,7 @@ return {
         cmd = "opencode",
         dir = vim.fn.getcwd(),
         direction = "vertical",
-        size = math.floor(vim.o.columns * 0.4),
+        size = math.floor(vim.o.columns * 0.4),  -- 2/5 del ancho de pantalla
         display_name = "OpenCode",
         on_open = function(term)
           vim.cmd("wincmd H")  -- Mover terminal a la izquierda
