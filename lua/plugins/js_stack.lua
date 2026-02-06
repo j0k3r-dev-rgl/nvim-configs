@@ -156,37 +156,47 @@ return {
       vim.lsp.enable('tailwindcss')
       vim.lsp.enable('eslint')
 
-      -- === Keybindings específicos para JS/TS ===
-      local wk = require('which-key')
-      wk.add({
-        { '<leader>t', group = 'TypeScript/JS' },
+      -- === Keybindings específicos para JS/TS - Se registran cuando se abre un archivo JS/TS ===
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' },
+        callback = function()
+          -- Diferir para asegurar que which-key esté disponible
+          vim.schedule(function()
+            local ok, wk = pcall(require, 'which-key')
+            if ok then
+              wk.add({
+                { '<leader>t', group = 'TypeScript/JS' },
 
-        -- LSP básico
-        { '<leader>td', vim.lsp.buf.definition, desc = 'Ir a Definición' },
-        { '<leader>ti', vim.lsp.buf.implementation, desc = 'Ir a Implementación' },
-        { '<leader>tr', vim.lsp.buf.references, desc = 'Ver Referencias' },
-        { '<leader>tk', vim.lsp.buf.hover, desc = 'Ver Documentación (Hover)' },
-        { '<leader>ta', vim.lsp.buf.code_action, desc = 'Acciones de Código' },
-        { '<leader>tn', vim.lsp.buf.rename, desc = 'Renombrar Símbolo' },
+                -- LSP básico
+                { '<leader>td', vim.lsp.buf.definition, desc = 'Ir a Definición' },
+                { '<leader>ti', vim.lsp.buf.implementation, desc = 'Ir a Implementación' },
+                { '<leader>tr', vim.lsp.buf.references, desc = 'Ver Referencias' },
+                { '<leader>tk', vim.lsp.buf.hover, desc = 'Ver Documentación (Hover)' },
+                { '<leader>ta', vim.lsp.buf.code_action, desc = 'Acciones de Código' },
+                { '<leader>tn', vim.lsp.buf.rename, desc = 'Renombrar Símbolo' },
 
-        -- React Router 7 específico - Navegación rápida de archivos
-        { '<leader>tf', group = 'Files (React Router 7)' },
+                -- React Router 7 específico - Navegación rápida de archivos
+                { '<leader>tf', group = 'Files (React Router 7)' },
 
-        { '<leader>tfc', function()
-          vim.cmd('edit react-router.config.ts')
-        end, desc = '⚙️  Config' },
+                { '<leader>tfc', function()
+                  vim.cmd('edit react-router.config.ts')
+                end, desc = '⚙️  Config' },
 
-        { '<leader>tfr', function()
-          vim.cmd('edit app/root.tsx')
-        end, desc = '🏠 Root Layout' },
+                { '<leader>tfr', function()
+                  vim.cmd('edit app/root.tsx')
+                end, desc = '🏠 Root Layout' },
 
-        { '<leader>tft', function()
-          vim.cmd('edit app/routes.ts')
-        end, desc = '🗺️  Routes' },
+                { '<leader>tft', function()
+                  vim.cmd('edit app/routes.ts')
+                end, desc = '🗺️  Routes' },
 
-        { '<leader>tfe', function()
-          vim.cmd('edit .env')
-        end, desc = '🔐 Environment' },
+                { '<leader>tfe', function()
+                  vim.cmd('edit .env')
+                end, desc = '🔐 Environment' },
+              })
+            end
+          end)
+        end,
       })
     end,
   },
