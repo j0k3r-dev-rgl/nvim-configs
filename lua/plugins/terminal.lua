@@ -19,9 +19,10 @@ return {
         cmd = "opencode",
         dir = vim.fn.getcwd(),
         direction = "vertical",
-        size = vim.o.columns * 0.4,
+        size = vim.o.columns * 0.35,
         display_name = "OpenCode",
         on_open = function(term)
+          vim.cmd("wincmd H")  -- Mover terminal a la izquierda
           vim.cmd("startinsert!")
         end,
       })
