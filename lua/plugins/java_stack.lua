@@ -41,28 +41,14 @@ return {
   -- 3. nvim-java: El plugin que automatiza TODO lo de Java
   {
     'nvim-java/nvim-java',
-    priority = 98, -- Debe inicializarse antes de lspconfig
+    dependencies = {
+      'williamboman/mason.nvim',
+      'folke/which-key.nvim',
+    },
     ft = { 'java' }, -- Solo se carga con archivos Java
     config = function()
-      require('java').setup()
-    end
-  },
-
-  -- 4. LSP Config: Configuración de JDTLS
-  {
-    'neovim/nvim-lspconfig',
-    dependencies = {
-      'nvim-java/nvim-java',
-      'williamboman/mason.nvim',
-      'hrsh7th/cmp-nvim-lsp',
-    },
-    priority = 97,
-    config = function()
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
       -- Configurar JDTLS usando la nueva API nativa
       vim.lsp.config('jdtls', {
-        capabilities = capabilities,
         settings = {
           java = {
             configuration = {
@@ -82,6 +68,12 @@ return {
         }
       })
 
+      -- Inicializar nvim-java
+      require('java').setup()
+
+      -- Habilitar el servidor JDTLS
+      vim.lsp.enable('jdtls')
+
       -- Keybindings específicos de Java
       local wk = require("which-key")
       wk.add({
@@ -93,9 +85,6 @@ return {
         { "<leader>ja", vim.lsp.buf.code_action, desc = "Acciones de Código (Fixes)" },
         { "<leader>jn", vim.lsp.buf.rename, desc = "Renombrar Símbolo" },
       })
-
-      -- Habilitar el servidor JDTLS
-      vim.lsp.enable('jdtls')
     end
   },
 
