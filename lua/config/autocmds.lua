@@ -12,6 +12,25 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     vim.defer_fn(function()
       recently_opened = false
     end, 100)
+    
+    -- Cerrar buffers vacíos [No Name] cuando se abre un archivo real
+    vim.schedule(function()
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+          local bufname = vim.api.nvim_buf_get_name(buf)
+          local buftype = vim.api.nvim_buf_get_option(buf, "buftype")
+          local modified = vim.api.nvim_buf_get_option(buf, "modified")
+          
+          -- Si es un buffer vacío sin nombre, sin modificar y no es especial
+          if bufname == "" and buftype == "" and not modified then
+            -- Verificar que no sea el buffer actual
+            if buf ~= vim.api.nvim_get_current_buf() then
+              vim.api.nvim_buf_delete(buf, { force = false })
+            end
+          end
+        end
+      end
+    end)
   end,
 })
 
