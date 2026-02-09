@@ -14,7 +14,8 @@ if not vim.loop.fs_stat(lazypath) then
   })
 end
 vim.opt.rtp:prepend(lazypath)
-
+-- Color gris tenue para la sombra de Codeium
+vim.api.nvim_set_hl(0, "CodeiumSuggestion", { fg = "#808080", italic = true })
 -- Cargar plugins
 require("lazy").setup("plugins")
 require("config.keymaps")
@@ -34,8 +35,8 @@ end
 
 vim.opt.number = true          -- Mostrar números de línea
 vim.opt.relativenumber = true  -- Números relativos para moverte rápido
-vim.opt.shiftwidth = 4         -- Tabulación de 4 espacios (estándar Java)
-vim.opt.tabstop = 4
+vim.opt.shiftwidth = 2         -- Tabulación de 4 espacios (estándar Java)
+vim.opt.tabstop = 2
 vim.opt.expandtab = true       -- Convertir tabs en espacios
 vim.opt.termguicolors = true   -- Colores reales en la terminal
 
